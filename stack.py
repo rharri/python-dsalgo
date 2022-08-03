@@ -26,93 +26,94 @@ class Stack(Generic[T]):
     def __init__(self):
         """Initializes a new instance of Stack.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
         """
         self._list: list[T] = []
-        self.top_index: int = 0
-        self.size: int = 0
-        self.max_size: int = 0
+        # The stack pointer always points to the 'top' item + 1
+        self._stack_pointer: int = 0
+        # How many items were appended to the list?
+        self._max_size: int = 0
 
     def push(self, item: T):
         """Pushes the `item` onto the stack.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
 
         :param item: The item to push onto the stack.
         """
-        if len(self._list) - 1 > self.top_index:
-            self._list[self.top_index + 1] = item
-            self.top_index += 1
+        # Reuse the end of the list if the last item in the list was popped
+        # The stack pointer will be less than the length of the list
+        if self._stack_pointer < len(self._list):
+            self._list[self._stack_pointer] = item
+            self._stack_pointer += 1
         else:
+            # Otherwise append to the end of the list
             self._list.append(item)
-            self.top_index = len(self._list) - 1
-        self.size += 1
-
-        if self.size > self.max_size:
-            self.max_size = self.size
+            self._max_size += 1
+            self._stack_pointer += 1
+            assert len(self) == len(self._list)
 
     def pop(self) -> T | None:
         """Removes the item at the top of the stack.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
 
         :return: The removed item or None if the stack is empty.
         """
-        if self.size == 0:
+        if self.is_empty():
             return None
-        item = self._list[self.top_index]
-
-        self.top_index -= 1
-        self.size -= 1
-
-        return item
+        self._stack_pointer -= 1
+        return self._list[self._stack_pointer]
 
     def top(self) -> T | None:
         """Returns the item that is currently at the top of the stack.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
 
         :return: The item at the top of the stack or None if the stack
         is empty.
         """
-        if self.size == 0:
+        if self.is_empty():
             return None
-        return self._list[self.top_index]
+        return self._list[self._stack_pointer - 1]
 
-    def empty(self) -> bool:
+    def is_empty(self) -> bool:
         """Returns True if the stack is empty, false otherwise.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
         """
-        return self.size == 0
+        return len(self) == 0
 
     def is_full(self) -> bool:
         """Returns True if the stack is full, false otherwise.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
         """
         return False
 
     def space(self) -> int:
         """Returns the maximum number of items that were held in the stack.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
         """
-        return self.max_size
+        return self._max_size
 
     def __len__(self) -> int:
         """Returns the length of the stack.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
         """
-        return self.size
+        return self._stack_pointer
+
+    def __repr__(self) -> str:
+        return f"stack={self._list}"
 
 
 if __name__ == "__main__":
     int_stack: Stack[int] = Stack()
     assert int_stack.pop() is None
     assert int_stack.top() is None
-    assert int_stack.empty() is True
+    assert int_stack.is_empty() is True
     assert int_stack.space() == 0
     assert len(int_stack) == 0
 
@@ -120,13 +121,13 @@ if __name__ == "__main__":
     int_stack.push(2)
     int_stack.push(3)
 
-    assert int_stack.empty() is False
+    assert int_stack.is_empty() is False
     assert int_stack.space() == 3
     assert len(int_stack) == 3
 
     assert int_stack.top() == 3
     assert int_stack.pop() == 3
-    assert int_stack.empty() is False
+    assert int_stack.is_empty() is False
     assert int_stack.space() == 3
     assert len(int_stack) == 2
     assert int_stack.top() == 2
@@ -136,14 +137,14 @@ if __name__ == "__main__":
 
     assert int_stack.pop() is None
     assert int_stack.top() is None
-    assert int_stack.empty() is True
+    assert int_stack.is_empty() is True
     assert int_stack.space() == 3
     assert len(int_stack) == 0
 
     int_stack.push(2)
     int_stack.push(3)
 
-    assert int_stack.empty() is False
+    assert int_stack.is_empty() is False
     assert int_stack.space() == 3
     assert len(int_stack) == 2
 
