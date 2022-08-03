@@ -3,7 +3,7 @@ data structure.
 """
 from typing import Generic, TypeVar
 
-from my_queue import Queue
+from circular_queue import Queue
 
 T = TypeVar("T")
 
@@ -15,62 +15,79 @@ class StackUsingQueue(Generic[T]):
     """
 
     def __init__(self, n: int = 10):
-        """Initializes a new StackUsingQueue instance."""
-        self.queue: Queue[T] = Queue(n)
-        self.max_size = 0
+        """Initializes a new StackUsingQueue instance.
+
+        Time: Θ(1), Space: Θ(N)
+        """
+        self._queue: Queue[T] = Queue(n)
+        self._temp_queue: Queue[T] = Queue(n)
+        self._max_size = 0
 
     def push(self, item: T) -> None:
         """Pushes the `item` onto the stack.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
 
         :param item: The item to push onto the stack.
         """
-        self.queue.enqueue(item)
-        self.max_size += 1
+        self._queue.enqueue(item)
+        self._max_size += 1
 
-    # Time: Theta(n), Space: Theta(n)
+    # Dequeuing from one queue into another queue (enqueue)
+    # maintains the order of items
     def pop(self) -> T | None:
         """Removes the item at the top of the stack.
 
-        This is a Theta(n) operation.
+        Time: O(N), Space: Θ(1)
 
         :return: The removed item or None if the stack is empty.
         """
-        if self.queue.is_empty():
+        if self._queue.is_empty():
             return None
 
-        end_item: T | None = self.queue.end()
+        end_item: T | None = self._queue.end()
 
-        put_back_items: list[T] = []
-        while True:
-            front_item: T | None = self.queue.front()
-            if front_item not in {None, end_item}:
-                put_back_items.append(front_item)  # type: ignore
-            if self.queue.dequeue() is False:
-                break
+        # Take an item from the front of the 'real' queue and enqueue it
+        # on the temporary queue. Do not enqueue the item that is
+        # currently at the end of the 'real' queue.
+        while not self._queue.is_empty():
+            item = self._queue.front()
+            if item and item != end_item:
+                self._temp_queue.enqueue(item)
+            self._queue.dequeue()
 
-        for item in put_back_items:
-            self.queue.enqueue(item)
+        # The queue should be empty
+        assert self._queue.is_empty() is True
+
+        # Enqueue the items from the temp queue on to the 'real' queue,
+        # effectively putting back the items in their original order
+        while not self._temp_queue.is_empty():
+            item = self._temp_queue.front()
+            if item:
+                self._queue.enqueue(item)
+            self._temp_queue.dequeue()
+
+        # The temp queue should be empty
+        assert self._temp_queue.is_empty() is True
 
         return end_item  # type: ignore
 
     def top(self) -> T | None:
         """Returns the item that is currently at the top of the stack.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
 
         :return: The item at the top of the stack or None if the stack
         is empty.
         """
-        if self.queue.is_empty():
+        if self._queue.is_empty():
             return None
-        return self.queue.end()
+        return self._queue.end()
 
     def peek(self) -> T | None:
         """Returns the item that is currently at the top of the stack.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
 
         :return: The item at the top of the stack or None if the stack
         is empty.
@@ -80,30 +97,30 @@ class StackUsingQueue(Generic[T]):
     def empty(self) -> bool:
         """Returns True if the stack is empty, false otherwise.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
         """
-        return self.queue.is_empty()
+        return self._queue.is_empty()
 
     def is_full(self) -> bool:
         """Returns True if the stack is full, false otherwise.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
         """
-        return self.queue.is_full()
+        return self._queue.is_full()
 
     def space(self) -> int:
         """Returns the maximum number of items that were held in the stack.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
         """
-        return self.max_size
+        return self._max_size
 
     def __len__(self) -> int:
         """Returns the length of the stack.
 
-        This is a constant time operation.
+        Time: Θ(1), Space: Θ(1)
         """
-        return len(self.queue)
+        return len(self._queue)
 
 
 if __name__ == "__main__":
