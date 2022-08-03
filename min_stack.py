@@ -14,8 +14,8 @@ class MinStack:
 
         This is a constant time operation.
         """
-        self.stack: Stack[int] = Stack()
-        self.min_stack: Stack[int] = Stack()
+        self._stack: Stack[int] = Stack()
+        self._min_stack: Stack[int] = Stack()
 
     def push(self, item: int) -> None:
         """Pushes the `item` onto the stack.
@@ -24,14 +24,14 @@ class MinStack:
 
         :param item: The item to push onto the stack.
         """
-        self.stack.push(item)
+        self._stack.push(item)
 
-        if self.min_stack.empty():
-            self.min_stack.push(item)
+        if self._min_stack.is_empty():
+            self._min_stack.push(item)
         else:
-            min_item = self.min_stack.top()
+            min_item = self._min_stack.top()
             if item <= min_item:  # type: ignore
-                self.min_stack.push(item)
+                self._min_stack.push(item)
 
     def pop(self) -> int | None:
         """Removes the top item from the stack.
@@ -40,10 +40,10 @@ class MinStack:
 
         :return: The removed item or None if the stack is empty.
         """
-        top_item: int | None = self.stack.top()
-        if top_item == self.min_stack.top():
-            self.min_stack.pop()
-        return self.stack.pop()
+        top_item: int | None = self._stack.top()
+        if top_item == self._min_stack.top():
+            self._min_stack.pop()
+        return self._stack.pop()
 
     def top(self) -> int | None:
         """Returns the item at the top of the stack.
@@ -52,7 +52,7 @@ class MinStack:
 
         The item is not removed from the stack.
         """
-        return self.stack.top()
+        return self._stack.top()
 
     def min(self) -> int | None:
         """Returns the minimum item from the stack.
@@ -61,7 +61,7 @@ class MinStack:
 
         The minimum item is not removed from the stack.
         """
-        return self.min_stack.top()
+        return self._min_stack.top()
 
 
 if __name__ == "__main__":
