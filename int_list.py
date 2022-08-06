@@ -2,15 +2,18 @@ from linked_list import LinkedList, Node
 
 
 class IntList(LinkedList):
+    # Time: O(N), Space: O(N)
     def __init__(self, n: int | None) -> None:
         super().__init__(None)
         if n or n == 0:
             self._init_from_n(n)
 
+    # Time: Θ(N), Space: Θ(N)
     def _init_from_n(self, n: int) -> None:
         digits: list[int] = self._get_digits(n)
         self._init_from_list(digits)
 
+    # Time: Θ(N), Space: Θ(N)
     def _get_digits(self, n: int) -> list[int]:
         if n == 0:
             return [0]
@@ -24,6 +27,7 @@ class IntList(LinkedList):
             digits.append(digit)
         return digits
 
+    # Time: Θ(N), Space: O(N)
     def get_value(self) -> int:
         forward_cursor: Node[int] | None = self.head()
         value_from_list: int = 0
@@ -35,6 +39,7 @@ class IntList(LinkedList):
             forward_cursor = forward_cursor.next
         return value_from_list
 
+    # Time: Θ(N), Space: O(N)
     def __add__(self, other: "IntList") -> "IntList":
         addend_column_1: Node[int] | None = self.head()
         addend_column_2: Node[int] | None = other.head()
@@ -87,3 +92,24 @@ class IntList(LinkedList):
             if addend_column_2:
                 addend_column_2 = addend_column_2.next
         return sum
+
+
+if __name__ == "__main__":
+    int_list: IntList = IntList(1995)
+    print(int_list)
+
+    print(f"value={int_list.get_value()}")
+
+    another_int_list: IntList = IntList(2022)
+    print(another_int_list)
+
+    sum = int_list + another_int_list
+    print(sum)
+    print(f"1995 + 2022 = {sum.get_value()}")
+
+    a = IntList(9999999)
+    b = IntList(9999)
+    c = a + b
+    print(f"a={a}, value={a.get_value()}")
+    print(f"b={b}, value={b.get_value()}")
+    print(f"c={c}, value={c.get_value()}")

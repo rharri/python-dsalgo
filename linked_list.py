@@ -1,10 +1,10 @@
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Union
 
 T = TypeVar("T")
 
 
 class Node(Generic[T]):
-    def __init__(self, value: T, next: "Node" | None) -> None:
+    def __init__(self, value: T, next: Union["Node", None]) -> None:
         self.value = value
         self.next = next
 
@@ -12,8 +12,12 @@ class Node(Generic[T]):
     def empty() -> "Node":
         return Node(None, next=None)
 
+    def __str__(self) -> str:
+        return str(self.value)
+
 
 class LinkedList(Generic[T]):
+    # Time: O(N), Space: O(N)
     def __init__(self, x: list[T] | None = None) -> None:
         self._head: Node[T] | None = None
         self._tail: Node[T] | None = None
@@ -22,6 +26,7 @@ class LinkedList(Generic[T]):
         if x:
             self._init_from_list(x)
 
+    # Time: Θ(N), Space: Θ(N)
     def _init_from_list(self, x: list[T]) -> None:
         if not x:
             raise ValueError("non-empty list required")
@@ -29,6 +34,7 @@ class LinkedList(Generic[T]):
         # Replace the current linked list with the source list
         self._head = None
         self._tail = None
+        self._size = 0
 
         # Iterate every element in the list, create a new node,
         # and join it with its predecessor
@@ -39,6 +45,7 @@ class LinkedList(Generic[T]):
                 # _head is None during the first iteration
                 self._head = new_node
                 forward_cursor = self._head
+                self._size += 1
                 continue
             # Connect the current node to the new node
             forward_cursor.next = new_node
@@ -49,6 +56,7 @@ class LinkedList(Generic[T]):
         # The last new_node will be last element in the source list
         self._tail = new_node
 
+    # Time: Θ(1), Space: Θ(1)
     def prepend(self, value: T) -> None:
         new_head_node = Node(value, next=self._head)
 
@@ -59,6 +67,7 @@ class LinkedList(Generic[T]):
             self._head = new_head_node
         self._size += 1
 
+    # Time: Θ(1), Space: Θ(1)
     def append(self, value: T) -> None:
         new_tail_node = Node(value, next=None)
 
@@ -74,12 +83,15 @@ class LinkedList(Generic[T]):
             self._tail = new_tail_node
         self._size += 1
 
+    # Time: Θ(1), Space: Θ(1)
     def head(self) -> Node | None:
         return self._head
 
+    # Time: Θ(1), Space: Θ(1)
     def tail(self) -> Node | None:
         return self._tail
 
+    # Time: O(N), Space: Θ(1)
     def delete(self, value) -> bool:
         if self.is_empty():
             return False
@@ -110,9 +122,11 @@ class LinkedList(Generic[T]):
             forward_cursor = forward_cursor.next
         return False
 
+    # Time: Θ(1), Space: Θ(1)
     def is_empty(self) -> int:
         return len(self) == 0
 
+    # Time: Θ(1), Space: Θ(1)
     def delete_head(self) -> bool:
         if not self._head:
             return False
@@ -128,6 +142,7 @@ class LinkedList(Generic[T]):
         self._size -= 1
         return True
 
+    # Time: O(N), Space: Θ(1)
     def delete_tail(self) -> bool:
         if not self._tail:
             return False
@@ -156,6 +171,7 @@ class LinkedList(Generic[T]):
             forward_cursor = forward_cursor.next
         return False
 
+    # Time: Θ(N), Space: Θ(1)
     def reverse(self) -> None:
         # Change each node's next pointer to point to their predecessor
         # 1 -> 2 -> 3 -> None
@@ -181,6 +197,7 @@ class LinkedList(Generic[T]):
         # which should now be the _head
         self._head = previous_node
 
+    # Time: O(N), Space: Θ(1)
     def mid_point(self) -> Node | None:
         if self.is_empty():
             return None
@@ -200,6 +217,7 @@ class LinkedList(Generic[T]):
             fast_cursor = fast_cursor.next.next  # type: ignore
         return None
 
+    # Time: O(N), Space: Θ(1)
     def __getitem__(self, index: int) -> Node | None:
         if index < 0 or index > len(self) - 1:
             return None
@@ -215,6 +233,7 @@ class LinkedList(Generic[T]):
             position += 1
         return None
 
+    # Time: O(N), Space: Θ(1)
     def __contains__(self, value) -> bool:
         forward_cursor: Node[T] | None = self.head()
         while forward_cursor:
@@ -223,9 +242,11 @@ class LinkedList(Generic[T]):
             forward_cursor = forward_cursor.next
         return False
 
+    # Time: Θ(1), Space: Θ(1)
     def __len__(self) -> int:
         return self._size
 
+    # Time: Θ(N), Space: Θ(N)
     def __str__(self) -> str:
         forward_cursor: Node[T] | None = self.head()
         string_values: list[str] = []
@@ -234,3 +255,37 @@ class LinkedList(Generic[T]):
             forward_cursor = forward_cursor.next
         string_values.append(str(None))
         return "->".join(string_values)
+
+
+if __name__ == "__main__":
+    numbers: list[int] = [n for n in range(1, 11)]
+
+    linked_list: LinkedList[int] = LinkedList(numbers)
+    print(linked_list)
+    print(f"len={len(linked_list)}")
+
+    print(f"head={linked_list.head()}")
+    print(f"tail={linked_list.tail()}")
+
+    linked_list.delete(5)
+    print(linked_list)
+    assert 5 not in linked_list
+
+    linked_list.delete_head()
+    print(linked_list)
+
+    linked_list.delete_tail()
+    print(linked_list)
+
+    print(f"head={linked_list.head()}")
+    print(f"tail={linked_list.tail()}")
+
+    print(f"linked_list[5]={linked_list[5]}")
+
+    print(f"len={len(linked_list)}")
+
+    midpoint = linked_list.mid_point()
+    print(f"midpoint={midpoint}")
+
+    linked_list.reverse()
+    print(f"reversed={linked_list}")
