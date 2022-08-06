@@ -3,20 +3,20 @@ from typing import Generic, TypeVar
 T = TypeVar("T")
 
 
-class _Node(Generic[T]):
-    def __init__(self, value: T, next: "_Node" | None) -> None:
-        self._value = value
-        self._next = next
+class Node(Generic[T]):
+    def __init__(self, value: T, next: "Node" | None) -> None:
+        self.value = value
+        self.next = next
 
     @staticmethod
-    def _empty() -> "_Node":
-        return _Node(None, next=None)
+    def empty() -> "Node":
+        return Node(None, next=None)
 
 
 class LinkedList(Generic[T]):
     def __init__(self, x: list[T] | None = None) -> None:
-        self._head: _Node[T] | None = None
-        self._tail: _Node[T] | None = None
+        self._head: Node[T] | None = None
+        self._tail: Node[T] | None = None
         self._size: int = 0
 
         if x:
@@ -32,16 +32,16 @@ class LinkedList(Generic[T]):
 
         # Iterate every element in the list, create a new node,
         # and join it with its predecessor
-        forward_cursor = _Node._empty()
+        forward_cursor = Node.empty()
         for elem in x:
-            new_node: _Node = _Node(elem, next=None)
+            new_node: Node = Node(elem, next=None)
             if not self._head:
                 # _head is None during the first iteration
                 self._head = new_node
                 forward_cursor = self._head
                 continue
             # Connect the current node to the new node
-            forward_cursor._next = new_node
+            forward_cursor.next = new_node
             # The forward cursor only moves forward :)
             forward_cursor = new_node
             self._size += 1
@@ -50,7 +50,7 @@ class LinkedList(Generic[T]):
         self._tail = new_node
 
     def prepend(self, value: T) -> None:
-        new_head_node = _Node(value, next=self._head)
+        new_head_node = Node(value, next=self._head)
 
         if self.is_empty():
             self._head = new_head_node
@@ -60,7 +60,7 @@ class LinkedList(Generic[T]):
         self._size += 1
 
     def append(self, value: T) -> None:
-        new_tail_node = _Node(value, next=None)
+        new_tail_node = Node(value, next=None)
 
         if self.is_empty():
             # _head and _tail are None
@@ -70,44 +70,44 @@ class LinkedList(Generic[T]):
             # We should have a _tail or something is wrong
             assert self._tail
             # Connect the previous _tail node to the new tail node
-            self._tail._next = new_tail_node
+            self._tail.next = new_tail_node
             self._tail = new_tail_node
         self._size += 1
 
-    def head(self) -> _Node | None:
+    def head(self) -> Node | None:
         return self._head
 
-    def tail(self) -> _Node | None:
+    def tail(self) -> Node | None:
         return self._tail
 
     def delete(self, value) -> bool:
         if self.is_empty():
             return False
 
-        forward_cursor: _Node[T] | None = self.head()
+        forward_cursor: Node[T] | None = self.head()
         # List is not empty, we should have a _head
         assert forward_cursor
 
-        if forward_cursor._value == value:
+        if forward_cursor.value == value:
             return self.delete_head()
 
-        tail_node: _Node[T] | None = self.tail()
+        tail_node: Node[T] | None = self.tail()
         # List is not empty, we should have a _tail
         assert tail_node
 
-        if tail_node._value == value:
+        if tail_node.value == value:
             return self.delete_tail()
 
         # Handle in-between node
-        previous_node = _Node._empty()
+        previous_node = Node.empty()
         while forward_cursor:
-            if forward_cursor._value == value:
+            if forward_cursor.value == value:
                 # Remove the target node from the list
-                previous_node._next = forward_cursor._next
+                previous_node.next = forward_cursor.next
                 self._size -= 1
                 return True
             previous_node = forward_cursor
-            forward_cursor = forward_cursor._next
+            forward_cursor = forward_cursor.next
         return False
 
     def is_empty(self) -> int:
@@ -124,7 +124,7 @@ class LinkedList(Generic[T]):
             self._size -= 1
             return True
 
-        self._head = self._head._next
+        self._head = self._head.next
         self._size -= 1
         return True
 
@@ -140,20 +140,20 @@ class LinkedList(Generic[T]):
             return True
 
         # Delete the _tail node if we have more than one node
-        previous_node = _Node._empty()
-        forward_cursor: _Node[T] | None = self.head()
+        previous_node = Node.empty()
+        forward_cursor: Node[T] | None = self.head()
         while forward_cursor:
             # If the next node is None, our cursor is on the _tail node
-            if not forward_cursor._next:
+            if not forward_cursor.next:
                 # Set the next pointer on the node that precedes the
                 # _tail node to None, deleting the _tail
-                previous_node._next = None
+                previous_node.next = None
                 # Reset the _tail pointer
                 self._tail = previous_node
                 self._size -= 1
                 return True
             previous_node = forward_cursor
-            forward_cursor = forward_cursor._next
+            forward_cursor = forward_cursor.next
         return False
 
     def reverse(self) -> None:
@@ -163,16 +163,16 @@ class LinkedList(Generic[T]):
         # 2 -> 1 -> None 3 -> None
         # 3 -> 2 -> 1 -> None
         previous_node = None
-        forward_cursor: _Node[T] | None = self.head()
+        forward_cursor: Node[T] | None = self.head()
         while forward_cursor:
             if not previous_node:
                 # Set the _head node to the _tail node
                 self._tail = forward_cursor
             # Get a reference to the next node
-            next_node: _Node[T] | None = forward_cursor._next
+            next_node: Node[T] | None = forward_cursor.next
             # Set 'this' node's next pointer to the previous node
             # Flip the relationship between predecessor node and 'this' node
-            forward_cursor._next = previous_node
+            forward_cursor.next = previous_node
             # Keep a reference to 'this' node
             previous_node = forward_cursor
             # Move to the next node
@@ -181,14 +181,14 @@ class LinkedList(Generic[T]):
         # which should now be the _head
         self._head = previous_node
 
-    def mid_point(self) -> _Node | None:
+    def mid_point(self) -> Node | None:
         if self.is_empty():
             return None
 
-        slow_cursor: _Node[T] | None = self.head()
+        slow_cursor: Node[T] | None = self.head()
         assert slow_cursor
 
-        fast_cursor: _Node[T] | None = slow_cursor._next
+        fast_cursor: Node[T] | None = slow_cursor.next
 
         # fast_cursor moves at 2x where x is the position of the slow_cursor
         # When fast_cursor reaches the end of the list, slow_cursor
@@ -196,11 +196,11 @@ class LinkedList(Generic[T]):
         while slow_cursor:
             if not fast_cursor or fast_cursor == self.tail():
                 return slow_cursor
-            slow_cursor = slow_cursor._next
-            fast_cursor = fast_cursor._next._next  # type: ignore
+            slow_cursor = slow_cursor.next
+            fast_cursor = fast_cursor.next.next  # type: ignore
         return None
 
-    def __getitem__(self, index: int) -> _Node | None:
+    def __getitem__(self, index: int) -> Node | None:
         if index < 0 or index > len(self) - 1:
             return None
         if index == 0:
@@ -211,25 +211,26 @@ class LinkedList(Generic[T]):
         while forward_cursor:
             if position == index:
                 return forward_cursor
-            forward_cursor = forward_cursor._next
+            forward_cursor = forward_cursor.next
             position += 1
         return None
 
     def __contains__(self, value) -> bool:
-        forward_cursor: _Node[T] | None = self.head()
+        forward_cursor: Node[T] | None = self.head()
         while forward_cursor:
-            if forward_cursor._value == value:
+            if forward_cursor.value == value:
                 return True
-            forward_cursor = forward_cursor._next
+            forward_cursor = forward_cursor.next
         return False
 
     def __len__(self) -> int:
         return self._size
 
     def __str__(self) -> str:
-        forward_cursor: _Node[T] | None = self.head()
-        string_value = ""
+        forward_cursor: Node[T] | None = self.head()
+        string_values: list[str] = []
         while forward_cursor:
-            string_value += str(forward_cursor._value) + "->"
-            forward_cursor = forward_cursor._next
-        return string_value + str(None)
+            string_values.append(str(forward_cursor.value))
+            forward_cursor = forward_cursor.next
+        string_values.append(str(None))
+        return "->".join(string_values)
